@@ -31266,6 +31266,8 @@ const addComment = async (outputs) => {
         repo: githubExports.context.repo.repo,
         commit_sha: githubExports.context.sha
     });
+    console.log('context', githubExports.context.repo, githubExports.context.sha);
+    console.log('pulls', pulls);
     for (const pull of pulls.data) {
         console.log('pull', pull);
         octokit.rest.issues.createComment({

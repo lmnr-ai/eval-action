@@ -14,7 +14,9 @@ export const addComment = async (outputs: Output[]) => {
     repo: context.repo.repo,
     commit_sha: context.sha
   })
+  console.log('context', context.repo, context.sha)
 
+  console.log('pulls', pulls)
   for (const pull of pulls.data) {
     console.log('pull', pull)
     octokit.rest.issues.createComment({
