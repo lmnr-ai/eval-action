@@ -100,3 +100,14 @@ __tests__/runner/*
 # IDE files
 .idea
 *.code-workspace
+node_modules/
+
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv

@@ -1,0 +1,24 @@
+name: Run TypeScript Test eval
+on:
+  push:
+    branches:
+      - test-actions
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  eval-ts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
+      - name: Install pnpm dependencies
+        run: pnpm install
+      - name: Run eval
+        uses: ./
+        with:
+          language: typescript
+

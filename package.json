@@ -1,8 +1,8 @@
 {
-  "name": "typescript-action",
-  "description": "GitHub Actions TypeScript template",
-  "version": "0.0.0",
-  "author": "",
+  "name": "eval-ts",
+  "description": "Laminar evaluations run action",
+  "version": "0.0.1-alpha.0",
+  "author": "Laminar https://www.lmnr.ai",
   "type": "module",
   "private": true,
   "homepage": "https://github.com/actions/typescript-action",
@@ -37,7 +37,9 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.11.1"
+    "@actions/core": "^1.11.1",
+    "@actions/exec": "^1.1.1",
+    "strip-ansi": "^7.1.0"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.8",
@@ -63,9 +65,10 @@
     "rollup": "^4.40.0",
     "ts-jest": "^29.3.2",
     "ts-jest-resolver": "^2.0.1",
-    "typescript": "^5.8.3"
-  },
-  "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "*"
+    "typescript": "^5.8.3",
+    "@lmnr-ai/lmnr": "^0.5.2",
+    "@types/node": "^22.15.3",
+    "openai": "^4.96.0",
+    "tsup": "^8.4.0"
   }
 }
