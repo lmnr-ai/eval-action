@@ -24,3 +24,4 @@ jobs:
         uses: ./
         with:
           language: typescript
+          lmnr-project-api-key: ${{ secrets.LMNR_PROJECT_API_KEY }}
