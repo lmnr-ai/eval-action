@@ -31261,19 +31261,13 @@ const addComment = async (outputs) => {
     }
     const token = coreExports.getInput('github-token');
     const octokit = githubExports.getOctokit(token);
-    const pulls = await octokit.rest.repos.listPullRequestsAssociatedWithCommit({
-        owner: githubExports.context.repo.owner,
-        repo: githubExports.context.repo.repo,
-        commit_sha: githubExports.context.sha
-    });
-    console.log('context', githubExports.context.repo, githubExports.context.sha);
-    console.log('pulls', pulls);
-    for (const pull of pulls.data) {
-        console.log('pull', pull);
-        octokit.rest.issues.createComment({
+    const issueNumbers = await getIssueNumbers(octokit, githubExports.context);
+    console.log('issueNumbers', issueNumbers);
+    for (const issueNumber of issueNumbers) {
+        await octokit.rest.issues.createComment({
             owner: githubExports.context.repo.owner,
             repo: githubExports.context.repo.repo,
-            issue_number: pull.number,
+            issue_number: issueNumber,
             body: `
         # Laminar Evaluation Results
         
@@ -31283,6 +31277,27 @@ const addComment = async (outputs) => {
       `
         });
     }
+};
+const getIssueNumbers = async (octokit, context) => {
+    const issueNumbers = [];
+    if (Number.isSafeInteger(context.issue.number)) {
+        issueNumbers.push(context.issue.number);
+    }
+    if (Number.isSafeInteger(context.payload.pull_request?.number)) {
+        issueNumbers.push(context.payload.pull_request.number);
+    }
+    if (Number.isSafeInteger(context.payload.issue?.number)) {
+        issueNumbers.push(context.payload.issue.number);
+    }
+    if (issueNumbers.length > 0) {
+        return Array.from(new Set(issueNumbers));
+    }
+    const pulls = await octokit.rest.repos.listPullRequestsAssociatedWithCommit({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        commit_sha: context.sha
+    });
+    return pulls.data.map((pull) => pull.number);
 };
 const formatOutput = (output) => {
     return `
