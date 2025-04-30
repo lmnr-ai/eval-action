@@ -24,10 +24,7 @@ const main = async () => {
   exportVariable('LMNR_PROJECT_API_KEY', lmnrProjectApiKey)
   const language = getOrDefaultLanguage(getInput('language'))
   const outputs: Output[] = []
-  const command =
-    language === 'javascript'
-      ? 'npx lmnr eval'
-      : `lmnr eval --language ${language}`
+  const command = language === 'javascript' ? 'npx lmnr eval' : 'lmnr eval'
   const execOutput = await getExecOutput(command)
   const stdout = execOutput.stdout
   const lines = stdout.split('\n').map(stripAnsi)

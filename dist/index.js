@@ -31328,9 +31328,7 @@ const main = async () => {
     coreExports.exportVariable('LMNR_PROJECT_API_KEY', lmnrProjectApiKey);
     const language = getOrDefaultLanguage(coreExports.getInput('language'));
     const outputs = [];
-    const command = language === 'javascript'
-        ? 'npx lmnr eval'
-        : `lmnr eval --language ${language}`;
+    const command = language === 'javascript' ? 'npx lmnr eval' : 'lmnr eval';
     const execOutput = await execExports.getExecOutput(command);
     const stdout = execOutput.stdout;
     const lines = stdout.split('\n').map(stripAnsi);
