@@ -31269,12 +31269,12 @@ const addComment = async (outputs) => {
             repo: githubExports.context.repo.repo,
             issue_number: issueNumber,
             body: `
-        # Laminar Evaluation Results
+# Laminar Evaluation Results
         
-        ${outputs.map(formatOutput).join('\n\n')}
+${outputs.map(formatOutput).join('\n\n')}
 
-        <!-- We can add any id/lookup metadata here in comment -->
-      `
+<!-- We can add any id/lookup metadata here in comment -->
+`
         });
     }
 };
@@ -31301,12 +31301,12 @@ const getIssueNumbers = async (octokit, context) => {
 };
 const formatOutput = (output) => {
     return `
-    ## ${output.filename ?? 'Evaluation file'}
-    
-    ${output.resultUrl ? `[View results](${output.resultUrl})` : ''}
-    
-    ### Average Scores
-    ${Object.entries(output.scores.average)
+## ${output.filename ?? 'Evaluation file'}
+
+${output.resultUrl ? `[View results](${output.resultUrl})` : ''}
+
+### Average Scores
+${Object.entries(output.scores.average)
         .map(([key, value]) => `${key}: ${value}`)
         .join('\n')}
   `;
