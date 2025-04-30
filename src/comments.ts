@@ -60,14 +60,17 @@ const getIssueNumbers = async (
 }
 
 const formatOutput = (output: Output) => {
+  const tableEntries = Object.entries(output.scores.average).map(
+    ([key, value]) => `| ${key} | ${value} |`
+  )
   return `
 ## ${output.filename ?? 'Evaluation file'}
 
 ${output.resultUrl ? `[View results](${output.resultUrl})` : ''}
 
 ### Average Scores
-${Object.entries(output.scores.average)
-  .map(([key, value]) => `${key}: ${value}`)
-  .join('\n')}
-  `
+| Metric | Score |
+| ------ | ----- |
+${tableEntries.join('\n')}
+`
 }
