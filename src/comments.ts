@@ -6,7 +6,7 @@ export const addComment = async (outputs: Output[]) => {
   if (outputs.length === 0) {
     return
   }
-  const token = getInput('github_token')
+  const token = getInput('github-token')
   const octokit = getOctokit(token)
 
   const pulls = await octokit.rest.repos.listPullRequestsAssociatedWithCommit({

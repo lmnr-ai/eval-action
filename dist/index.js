@@ -31259,7 +31259,7 @@ const addComment = async (outputs) => {
     if (outputs.length === 0) {
         return;
     }
-    const token = coreExports.getInput('github_token');
+    const token = coreExports.getInput('github-token');
     const octokit = githubExports.getOctokit(token);
     const pulls = await octokit.rest.repos.listPullRequestsAssociatedWithCommit({
         owner: githubExports.context.repo.owner,

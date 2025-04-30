@@ -1,6 +1,7 @@
-import os
-from lmnr import evaluate
 import random
+
+from lmnr import evaluate
+# import os
 
 # openai_client = AsyncOpenAI(
 #     api_key=os.environ["OPENAI_API_KEY"]
