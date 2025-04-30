@@ -1,12 +1,9 @@
 [project]
 dependencies = [
-  "lmnr>=0.5.2",
+  "lmnr @ git+https://github.com/lmnr-ai/lmnr-python.git@stop-bg-events",
 ]
 description = "Add your description here"
 name = "eval-ts"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.9"
 version = "0.1.0"
-
-[tool.uv.sources]
-lmnr = {git = "https://github.com/lmnr-ai/lmnr-python.git", branch = "stop-bg-events"}
