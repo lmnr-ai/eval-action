@@ -57,8 +57,4 @@ evaluate(
         "word_count": word_count,
         "random": rand,
     },
-    project_api_key=os.getenv("LMNR_PROJECT_API_KEY"),
-    base_url="http://localhost",
-    http_port=8000,
-    grpc_port=8001,
 )
