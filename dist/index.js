@@ -1718,7 +1718,7 @@ function requireTimers () {
 	return timers;
 }
 
-var main = {exports: {}};
+var main$1 = {exports: {}};
 
 var sbmh;
 var hasRequiredSbmh;
@@ -3256,7 +3256,7 @@ function requireUrlencoded () {
 var hasRequiredMain;
 
 function requireMain () {
-	if (hasRequiredMain) return main.exports;
+	if (hasRequiredMain) return main$1.exports;
 	hasRequiredMain = 1;
 
 	const WritableStream = require$$0$7.Writable;
@@ -3337,12 +3337,12 @@ function requireMain () {
 	  this._parser.write(chunk, cb);
 	};
 
-	main.exports = Busboy;
-	main.exports.default = Busboy;
-	main.exports.Busboy = Busboy;
+	main$1.exports = Busboy;
+	main$1.exports.default = Busboy;
+	main$1.exports.Busboy = Busboy;
 
-	main.exports.Dicer = Dicer;
-	return main.exports;
+	main$1.exports.Dicer = Dicer;
+	return main$1.exports;
 }
 
 var constants$3;
@@ -11492,6 +11492,20 @@ function requirePool () {
 	      ? { ...options.interceptors }
 	      : undefined;
 	    this[kFactory] = factory;
+
+	    this.on('connectionError', (origin, targets, error) => {
+	      // If a connection error occurs, we remove the client from the pool,
+	      // and emit a connectionError event. They will not be re-used.
+	      // Fixes https://github.com/nodejs/undici/issues/3895
+	      for (const target of targets) {
+	        // Do not use kRemoveClient here, as it will close the client,
+	        // but the client cannot be closed in this state.
+	        const idx = this[kClients].indexOf(target);
+	        if (idx !== -1) {
+	          this[kClients].splice(idx, 1);
+	        }
+	      }
+	    });
 	  }
 
 	  [kGetDispatcher] () {
@@ -14953,6 +14967,7 @@ function requireHeaders () {
 	  isValidHeaderName,
 	  isValidHeaderValue
 	} = requireUtil$5();
+	const util = require$$0$2;
 	const { webidl } = requireWebidl();
 	const assert = require$$0$3;
 
@@ -15499,6 +15514,9 @@ function requireHeaders () {
 	  [Symbol.toStringTag]: {
 	    value: 'Headers',
 	    configurable: true
+	  },
+	  [util.inspect.custom]: {
+	    enumerable: false
 	  }
 	});
 
@@ -21388,9 +21406,10 @@ function requireUtil$1 () {
 	if (hasRequiredUtil$1) return util$1;
 	hasRequiredUtil$1 = 1;
 
-	const assert = require$$0$3;
-	const { kHeadersList } = requireSymbols$4();
-
+	/**
+	 * @param {string} value
+	 * @returns {boolean}
+	 */
 	function isCTLExcludingHtab (value) {
 	  if (value.length === 0) {
 	    return false
@@ -21651,31 +21670,13 @@ function requireUtil$1 () {
 	  return out.join('; ')
 	}
 
-	let kHeadersListNode;
-
-	function getHeadersList (headers) {
-	  if (headers[kHeadersList]) {
-	    return headers[kHeadersList]
-	  }
-
-	  if (!kHeadersListNode) {
-	    kHeadersListNode = Object.getOwnPropertySymbols(headers).find(
-	      (symbol) => symbol.description === 'headers list'
-	    );
-
-	    assert(kHeadersListNode, 'Headers cannot be parsed');
-	  }
-
-	  const headersList = headers[kHeadersListNode];
-	  assert(headersList);
-
-	  return headersList
-	}
-
 	util$1 = {
 	  isCTLExcludingHtab,
-	  stringify,
-	  getHeadersList
+	  validateCookieName,
+	  validateCookiePath,
+	  validateCookieValue,
+	  toIMFDate,
+	  stringify
 	};
 	return util$1;
 }
@@ -22013,7 +22014,7 @@ function requireCookies () {
 	hasRequiredCookies = 1;
 
 	const { parseSetCookie } = requireParse();
-	const { stringify, getHeadersList } = requireUtil$1();
+	const { stringify } = requireUtil$1();
 	const { webidl } = requireWebidl();
 	const { Headers } = requireHeaders();
 
@@ -22089,14 +22090,13 @@ function requireCookies () {
 
 	  webidl.brandCheck(headers, Headers, { strict: false });
 
-	  const cookies = getHeadersList(headers).cookies;
+	  const cookies = headers.getSetCookie();
 
 	  if (!cookies) {
 	    return []
 	  }
 
-	  // In older versions of undici, cookies is a list of name:value.
-	  return cookies.map((pair) => parseSetCookie(Array.isArray(pair) ? pair[1] : pair))
+	  return cookies.map((pair) => parseSetCookie(pair))
 	}
 
 	/**
@@ -27246,48 +27246,129 @@ function requireCore () {
 
 var coreExports = requireCore();
 
-/**
- * Waits for a number of milliseconds.
- *
- * @param milliseconds The number of milliseconds to wait.
- * @returns Resolves with 'done!' after the wait is over.
- */
-async function wait(milliseconds) {
-    return new Promise((resolve) => {
-        if (isNaN(milliseconds))
-            throw new Error('milliseconds is not a number');
-        setTimeout(() => resolve('done!'), milliseconds);
-    });
+var execExports = requireExec();
+
+function ansiRegex({onlyFirst = false} = {}) {
+	// Valid string terminator sequences are BEL, ESC\, and 0x9c
+	const ST = '(?:\\u0007|\\u001B\\u005C|\\u009C)';
+	const pattern = [
+		`[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?${ST})`,
+		'(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]))',
+	].join('|');
+
+	return new RegExp(pattern, onlyFirst ? undefined : 'g');
 }
 
-/**
- * The main function for the action.
- *
- * @returns Resolves when the action is complete.
- */
-async function run() {
-    try {
-        const ms = coreExports.getInput('milliseconds');
-        // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-        coreExports.debug(`Waiting ${ms} milliseconds ...`);
-        // Log the current timestamp, wait, then log the new timestamp
-        coreExports.debug(new Date().toTimeString());
-        await wait(parseInt(ms, 10));
-        coreExports.debug(new Date().toTimeString());
-        // Set outputs for other workflow steps to use
-        coreExports.setOutput('time', new Date().toTimeString());
-    }
-    catch (error) {
-        // Fail the workflow run if an error occurs
-        if (error instanceof Error)
-            coreExports.setFailed(error.message);
-    }
+const regex = ansiRegex();
+
+function stripAnsi(string) {
+	if (typeof string !== 'string') {
+		throw new TypeError(`Expected a \`string\`, got \`${typeof string}\``);
+	}
+
+	// Even though the regex is global, we don't need to reset the `.lastIndex`
+	// because unlike `.exec()` and `.test()`, `.replace()` does it automatically
+	// and doing it manually has a performance penalty.
+	return string.replace(regex, '');
 }
 
-/**
- * The entrypoint for the action. This file simply imports and runs the action's
- * main logic.
- */
-/* istanbul ignore next */
-run();
+const IsPost = !!coreExports.getState('isPost');
+const getOrDefaultLanguage = (language) => {
+    if (['javascript', 'typescript', 'node', 'nodejs'].includes(language.toLowerCase())) {
+        return 'javascript';
+    }
+    if (['python', 'py'].includes(language.toLowerCase())) {
+        return 'python';
+    }
+    return 'javascript';
+};
+const main = async () => {
+    const lmnrProjectApiKey = coreExports.getInput('lmnr-project-api-key');
+    coreExports.exportVariable('LMNR_PROJECT_API_KEY', lmnrProjectApiKey);
+    const language = getOrDefaultLanguage(coreExports.getInput('language'));
+    const outputs = [];
+    const command = language === 'javascript'
+        ? 'npx lmnr eval'
+        : `lmnr eval --language ${language}`;
+    const execOutput = await execExports.getExecOutput(command);
+    const stdout = execOutput.stdout;
+    const lines = stdout.split('\n').map(stripAnsi);
+    const evalFileNameRegex = language === 'javascript'
+        ? /INFO \(\d+\): Loading (.*\.(?:ts|js))...$/
+        : /INFO: Running evaluation from (.*\.py) \(/;
+    const resultUrlRegex = language === 'javascript'
+        ? /Check results at (.*)$/
+        : /Check the results at (.*)$/;
+    let output;
+    let inResults = false;
+    for (const line of lines) {
+        if (line.length === 0) {
+            if (inResults) {
+                inResults = false;
+                outputs.push(output);
+                output = undefined;
+            }
+            continue;
+        }
+        const evalFileNameMatch = line.match(evalFileNameRegex);
+        if (evalFileNameMatch) {
+            if (output) {
+                outputs.push(output);
+                output = undefined;
+            }
+            const evalFileName = evalFileNameMatch[1];
+            output = {
+                filename: evalFileName,
+                ...(output || {})
+            };
+        }
+        const resultUrlMatch = line.match(resultUrlRegex);
+        if (resultUrlMatch) {
+            output = {
+                resultUrl: resultUrlMatch[1],
+                ...(output || {})
+            };
+        }
+        if (line.startsWith('Average scores:')) {
+            inResults = true;
+            continue;
+        }
+        if (inResults) {
+            const scores = line.split(':').map((score) => score.trim());
+            const newScores = {
+                average: {
+                    ...(output?.scores?.average || {}),
+                    [scores[0]]: parseFloat(scores[1])
+                }
+            };
+            output = {
+                ...(output || {}),
+                scores: newScores
+            };
+        }
+    }
+    if (output) {
+        outputs.push(output);
+    }
+    const stderr = execOutput.stderr;
+    const stderrFileNames = stderr
+        .split('\n')
+        .map((line) => stripAnsi(line).match(evalFileNameRegex))
+        .filter((m) => m != null)
+        .map((m) => m[1]);
+    for (let i = 0; i < outputs.length; i++) {
+        const output = outputs[i];
+        if (i < stderrFileNames.length) {
+            output.filename = stderrFileNames[i];
+        }
+    }
+    coreExports.setOutput('outputs', outputs);
+};
+if (IsPost) {
+    console.log('performing post action');
+}
+else {
+    console.log('performing main action');
+    main();
+}
 //# sourceMappingURL=index.js.map
