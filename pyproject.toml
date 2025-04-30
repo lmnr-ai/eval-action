@@ -9,4 +9,4 @@ requires-python = ">=3.13"
 version = "0.1.0"
 
 [tool.uv.sources]
-lmnr = {path = "../lmnr-python-sdk"}
+lmnr = {git = "https://github.com/lmnr-ai/lmnr-python.git", branch = "stop-bg-events"}

@@ -1,4 +1,4 @@
-name: Run Python Test eval
+name: Run TypeScript Test eval
 on:
   pull_request:
     types:
@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  eval-py:
+  eval-ts:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
