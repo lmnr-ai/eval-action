@@ -1,8 +1,10 @@
 name: Run TypeScript Test eval
 on:
-  push:
-    branches:
-      - test-actions
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
 
 permissions:
   pull-requests: write

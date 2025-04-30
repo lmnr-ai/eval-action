@@ -1,18 +1,9 @@
 import { exportVariable, getInput, getState, setOutput } from '@actions/core'
 import { getExecOutput } from '@actions/exec'
 import stripAnsi from 'strip-ansi'
-
+import { Output } from './types'
+import { addComment } from './comments'
 const IsPost = !!getState('isPost')
-
-interface Output {
-  resultUrl: string
-  scores: {
-    average: {
-      [key: string]: number
-    }
-  }
-  filename?: string
-}
 
 const getOrDefaultLanguage = (language: string) => {
   if (
@@ -109,10 +100,13 @@ const main = async () => {
     const output = outputs[i]
     if (i < stderrFileNames.length) {
       output.filename = stderrFileNames[i]
+    } else {
+      break
     }
   }
 
   setOutput('outputs', outputs)
+  addComment(outputs)
 }
 
 if (IsPost) {
