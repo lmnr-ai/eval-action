@@ -1,6 +1,6 @@
-name: 'Laminar evaluation'
-description: 'Laminar evaluations run action Node'
-author: 'Laminar https://www.lmnr.ai'
+name: "Laminar evaluation"
+description: "Laminar evaluations run action Node"
+author: "Laminar https://www.lmnr.ai"
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
@@ -10,15 +10,19 @@ branding:
 # Define your inputs here.
 inputs:
   lmnr-project-api-key:
-    description: 'Your Laminar Project API key'
+    description: "Your Laminar Project API key"
     required: true
-    default: '1000'
+    default: "1000"
+  github-token:
+    description: "Your GitHub token"
+    required: true
+    default: "${{ github.token }}"
   language:
     description:
       "The language of the code to evaluate. Either 'javascript' or 'python'.
       Defaults to 'javascript'."
     required: false
-    default: 'javascript'
+    default: "javascript"
 
 # Define your outputs here.
 outputs:
@@ -26,5 +30,5 @@ outputs:
     description: Your output description here
 
 runs:
-  using: 'node20'
-  main: 'dist/index.js'
+  using: "node20"
+  main: "dist/index.js"
