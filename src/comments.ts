@@ -16,6 +16,7 @@ export const addComment = async (outputs: Output[]) => {
   })
 
   for (const pull of pulls.data) {
+    console.log('pull', pull)
     octokit.rest.issues.createComment({
       owner: context.repo.owner,
       repo: context.repo.repo,
