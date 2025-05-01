@@ -24,7 +24,7 @@ async def get_capital(data):
     # return response.choices[0].message.content.strip()
 
 
-# # Evaluation data
+# Evaluation data
 data = [
     {"data": {"country": "United States"}, "target": {"capital": "Washington, D.C."}},
     {"data": {"country": "Canada"}, "target": {"capital": "Ottawa"}},

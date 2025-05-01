@@ -2,7 +2,9 @@ name: Run TypeScript Test eval
 on:
   pull_request:
     types:
-      - assigned
+      - opened
+      - reopened
+      - synchronize
 
 permissions:
   pull-requests: write
