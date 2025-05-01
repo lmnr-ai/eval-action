@@ -1,0 +1,29 @@
+name: Run TypeScript Test eval
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  eval-ts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - name: Install pnpm dependencies
+        run: pnpm install
+      - name: Run eval
+        uses: ./
+        with:
+          language: typescript
+          lmnr-project-api-key: ${{ secrets.LMNR_PROJECT_API_KEY }}
